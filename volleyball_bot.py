@@ -6,11 +6,11 @@ import time
 
 # Deine Supabase Zugangsdaten
 SUPABASE_URL = "https://ybghdcddwdtdfybqfxxk.supabase.co"
-SUPABASE_KEY = "DEIN_SUPABASE_ANON_KEY"  # Hier deinen echten Supabase Key eintragen
+SUPABASE_KEY = "sb_publishable_EtE4Ouh4FBdBbLLMMnnTSA_Nehpq9WC"  # Hier deinen echten Supabase Key eintragen
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Name deiner WhatsApp-Gruppe exakt wie in WhatsApp Web
-WHATSAPP_GRUPPEN_NAME = "DEIN_GRUPPENNAME"
+WHATSAPP_GRUPPEN_NAME = "TSV Uheim1"
 
 def check_and_send():
     today = datetime.now().date()
