@@ -9,15 +9,19 @@ SUPABASE_URL = "https://ybghdcddwdtdfybqfxxk.supabase.co"
 SUPABASE_KEY = "sb_publishable_EtE4Ouh4FBdBbLLMMnnTSA_Nehpq9WC"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Name deiner WhatsApp-Gruppe exakt wie in WhatsApp Web
-WHATSAPP_GRUPPEN_NAME = "TSV Uheim1"
+# WICHTIG: Trage hier den Einladungs-Code deiner WhatsApp-Gruppe ein!
+# Beispiel: Wenn der Link https://chat.whatsapp.com/AB123CDEFGHijklmn lautet, 
+# ist die Group-ID hier "AB123CDEFGHijklmn"
+WHATSAPP_GROUP_ID = "https://chat.whatsapp.com/L99bTQi617wKaxfMmmXwTt"
 
 def check_and_send():
     today = datetime.now().date()
-    # Alle Spiele von heute bis in 11 Tage (1,5 Wochen)
+    # Alle Spiele von heute bis in die nächsten 1,5 Wochen (11 Tage)
     target_date_max = today + timedelta(days=11)
     
-    # Spiele aus Supabase abrufen (alles zwischen heute und in 11 Tagen)
+    print(f"Suche Spiele im Zeitraum von {today} bis {target_date_max}...")
+    
+    # Spiele aus Supabase abrufen
     response = supabase.table("volleyball_spiele").select("*").gte("datum", str(today)).lte("datum", str(target_date_max)).execute()
     spiele = response.data
     
@@ -25,7 +29,7 @@ def check_and_send():
         print("Keine Spiele in den nächsten 1,5 Wochen gefunden.")
         return
 
-    print(f"{len(spiel if 'spiel' in locals() else spiele)} Spiel(e) in den nächsten 1,5 Wochen gefunden. Starte Versand...")
+    print(f"{len(spiele)} Spiel(e) gefunden! Starte WhatsApp-Versand...")
 
     for spiel in spiele:
         gegner = spiel.get("gegner")
@@ -46,18 +50,29 @@ def check_and_send():
         )
         
         print(f"Sende Nachricht für Spiel gegen {gegner} am {formatted_date}...")
-        
-        # WhatsApp Web steuern (öffnet Browser, tippt Nachricht, sendet ab)
+
+        # Erhöhe die wait_time auf 30 Sekunden, damit WhatsApp Web in Ruhe laden kann
         now = datetime.now()
-        kit.send_what_msg_to_group(
-            groupId_or_Name=WHATSAPP_GRUPPEN_NAME,
-            message=nachricht,
-            time_hour=now.hour,
-            time_min=now.minute + 2, # Sendet in 2 Minuten
-            wait_time=15,
-            tab_close=True
+        kit.sendwhatmsg_to_group(
+            WHATSAPP_GROUP_ID,
+            nachricht,
+            now.hour,
+            now.minute + 2, 
+            30,             # Erhöht auf 30 Sekunden Wartezeit zum Laden
+            True            # tab_close
         )
-        print("Nachricht erfolgreich übergeben!")
+        
+        # WhatsApp Web steuern (Positionsargumente: group_id, message, time_hour, time_min, wait_time, tab_close, close_time)
+        now = datetime.now()
+        kit.sendwhatmsg_to_group(
+            WHATSAPP_GROUP_ID,
+            nachricht,
+            now.hour,
+            now.minute + 2, # Sendet in 2 Minuten
+            15,             # wait_time
+            True            # tab_close
+        )
+        print("Nachricht erfolgreich an WhatsApp übergeben!")
         time.sleep(10)
 
 if __name__ == "__main__":
