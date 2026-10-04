@@ -58,6 +58,5 @@ def check_and_send():
         )
         print("Nachricht erfolgreich übergeben!")
         time.sleep(10)
-
 if __name__ == "__main__":
     check_and_send()
