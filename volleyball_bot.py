@@ -6,7 +6,7 @@ import time
 
 # Deine Supabase Zugangsdaten
 SUPABASE_URL = "https://ybghdcddwdtdfybqfxxk.supabase.co"
-SUPABASE_KEY = "sb_publishable_EtE4Ouh4FBdBbLLMMnnTSA_Nehpq9WC"  # Dein echter Supabase Key
+SUPABASE_KEY = "sb_publishable_EtE4Ouh4FBdBbLLMMnnTSA_Nehpq9WC"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Name deiner WhatsApp-Gruppe exakt wie in WhatsApp Web
@@ -14,17 +14,18 @@ WHATSAPP_GRUPPEN_NAME = "TSV Uheim1"
 
 def check_and_send():
     today = datetime.now().date()
-    # 1,5 Wochen = 10 bis 11 Tage im Voraus
-    target_date_min = today + timedelta(days=10)
+    # Alle Spiele von heute bis in 11 Tage (1,5 Wochen)
     target_date_max = today + timedelta(days=11)
     
-    # Spiele aus Supabase abrufen
-    response = supabase.table("volleyball_spiele").select("*").gte("datum", str(target_date_min)).lte("datum", str(target_date_max)).execute()
+    # Spiele aus Supabase abrufen (alles zwischen heute und in 11 Tagen)
+    response = supabase.table("volleyball_spiele").select("*").gte("datum", str(today)).lte("datum", str(target_date_max)).execute()
     spiele = response.data
     
     if not spiele:
-        print("Kein Spiel in den nächsten 1,5 Wochen gefunden.")
+        print("Keine Spiele in den nächsten 1,5 Wochen gefunden.")
         return
+
+    print(f"{len(spiel if 'spiel' in locals() else spiele)} Spiel(e) in den nächsten 1,5 Wochen gefunden. Starte Versand...")
 
     for spiel in spiele:
         gegner = spiel.get("gegner")
@@ -36,7 +37,7 @@ def check_and_send():
         formatted_date = datetime.strptime(datum, "%Y-%m-%d").strftime("%d.%m.%Y")
         
         nachricht = (
-            f"🏐 *Erinnerung: Volleyball-Spiel in ca. 1,5 Wochen!*\n\n"
+            f"🏐 *Erinnerung: Kommendes Volleyball-Spiel!*\n\n"
             f"📅 Datum: {formatted_date}\n"
             f"⏰ Uhrzeit: {uhrzeit} Uhr\n"
             f"🆚 Gegner: {gegner}\n"
@@ -44,7 +45,7 @@ def check_and_send():
             f"Bitte gebt rechtzeitig Bescheid, wer Zeit hat! 💪"
         )
         
-        print(f"Sende Nachricht für Spiel gegen {gegner}...")
+        print(f"Sende Nachricht für Spiel gegen {gegner} am {formatted_date}...")
         
         # WhatsApp Web steuern (öffnet Browser, tippt Nachricht, sendet ab)
         now = datetime.now()
